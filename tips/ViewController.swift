@@ -17,17 +17,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var taxMode: UISegmentedControl!
     @IBOutlet weak var percLabel: UILabel!
     
-    var defaultTint: UIColor!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-
-        billField.text = "0.00"
-        tipLabel.text = "$0.00"
-        percLabel.text = "20.0%"
-        totalLabel.text = "$0.00"
-        defaultTint = tipControl.tintColor
+        loadValues()
+        updateFields()
     }
 
     override func didReceiveMemoryWarning() {
@@ -74,7 +67,7 @@ class ViewController: UIViewController {
     @IBAction func onValueChanged(sender: AnyObject) {
         var tipPercentages = ["15.0%", "20.0%", "25.0%"]
         percLabel.text = tipPercentages[tipControl.selectedSegmentIndex]
-        tipControl.tintColor = defaultTint
+        tipControl.tintColor = nil
         updateFields()
     }
     
@@ -103,8 +96,35 @@ class ViewController: UIViewController {
 
         tipLabel.text = String(format: "$%.2f", tip)
         totalLabel.text = String(format: "$%.2f", total)
+        saveValues()
     }
     
+    func loadValues() {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        billField.text = defaults.objectForKey("billFieldText") as? String ?? "0.00"
+        let isColorGray = defaults.boolForKey("tipControlTintColorIsGray") ?? false
+        if isColorGray {
+            tipControl.tintColor = UIColor.grayColor()
+        } else {
+            tipControl.tintColor = nil
+        }
+        tipControl.selectedSegmentIndex = defaults.objectForKey("tipControlSelectedSegmentIndex") as? Int ?? 1
+        taxMode.selectedSegmentIndex = defaults.objectForKey("taxModeSelectedSegmentIndex") as? Int ?? 1
+        percLabel.text = defaults.objectForKey("percLabelText") as? String ?? "20.0%"
+    }
+    
+    func saveValues() {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(true, forKey: "hasValues")
+        defaults.setObject(billField.text, forKey: "billFieldText")
+        print(tipControl.tintColor)
+        defaults.setBool(tipControl.tintColor == UIColor.grayColor(), forKey: "tipControlTintColorIsGray")
+        
+        defaults.setInteger(tipControl.selectedSegmentIndex, forKey: "tipControlSelectedSegmentIndex")
+        defaults.setInteger(taxMode.selectedSegmentIndex, forKey: "taxModeSelectedSegmentIndex")
+        defaults.setObject(percLabel.text, forKey: "percLabelText")
+        defaults.synchronize()
+    }
     
 }
 
