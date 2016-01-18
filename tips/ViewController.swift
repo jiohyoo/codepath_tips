@@ -37,13 +37,17 @@ class ViewController: UIViewController {
     @IBAction func onPan(sender: UIPanGestureRecognizer) {
         let velocity: CGPoint = sender.velocityInView(view)
         print(velocity, velocity.x)
-        if CGFloat.abs(velocity.x) > 10 {
+        if CGFloat.abs(velocity.x) > 50 {
+            var steps = Int(CGFloat.abs(velocity.x) / 100)
+            if steps == 0 {
+                steps = 1
+            }
             let percLabelString = percLabel.text!
             var tipPerc = Double(percLabelString.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "%")))!
             if velocity.x > 0 {
-                tipPerc += 0.1
+                tipPerc += 0.1 * Double(steps)
             } else {
-                tipPerc -= 0.1
+                tipPerc -= 0.1 * Double(steps)
             }
             
             if tipPerc > 100.0 {
@@ -88,7 +92,7 @@ class ViewController: UIViewController {
         if postTaxMode {
             tip = billAmountDouble * tipRate
         } else {
-            tip = billAmountDouble / 1.07 * tipRate
+            tip = billAmountDouble / 1.0775 * tipRate
         }
         let total = billAmountDouble + tip
 
